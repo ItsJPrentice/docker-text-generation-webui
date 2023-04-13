@@ -1,0 +1,26 @@
+version: '3'
+
+services:
+  text-generation:
+    build: 
+      context: .
+      args:
+        # specify which cuda version your card supports: https://developer.nvidia.com/cuda-gpus
+        TORCH_CUDA_ARCH_LIST: ${TORCH_CUDA_ARCH_LIST}
+        WEBUI_VERSION: ${WEBUI_VERSION}
+    env_file: .env
+    ports:
+      - "${HOST_PORT}:${CONTAINER_PORT}"
+      - "${HOST_API_PORT}:${CONTAINER_API_PORT}"
+    stdin_open: true
+    tty: true
+    volumes:
+      - ~/code/models/text-generation/characters:/app/characters
+      - ~/code/models/text-generation/lora:/app/loras:ro
+      - ~/code/models/text-generation/models:/app/models:ro
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              capabilities: [gpu]
